@@ -54,7 +54,7 @@ public class CreditApplicationController {
     public String saveStepTwo(@ModelAttribute ProcessContainer processContainer, Model model) {
 
         Customer customer = processContainer.getCustomer();
-        Customer savedCustomer = customerService.saveCustomerInBackend(customer);
+        Customer savedCustomer = customerService.saveCustomerInBackend(customer, processContainer.getCreditApplicationForm().getId());
         processContainer.getCreditApplicationForm().setCustomerId(savedCustomer.getId());
         processContainer.setCustomer(savedCustomer);
         creditApplicationFormRepository.save(processContainer.getCreditApplicationForm());
