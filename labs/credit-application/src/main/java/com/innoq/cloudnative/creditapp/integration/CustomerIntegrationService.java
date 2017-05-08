@@ -31,17 +31,14 @@ public class CustomerIntegrationService implements ICustomerIntegrationService {
     @Override
     @HystrixCommand(fallbackMethod = "putCustomerToTheSide")
     public Customer saveCustomerInBackend(Customer customer, Long creditApplicationId) {
-        List<ServiceInstance> serviceInstances = discoveryClient.getInstances("customer");
-        ServiceInstance customerServiceInstance = serviceInstances.get(0);
-        return restTemplate.postForObject(customerServiceInstance.getUri() + "/customers", customer, Customer.class);
+
+        return restTemplate.postForObject("http://customer/customers", customer, Customer.class);
     }
 
     @Override
     @HystrixCommand(fallbackMethod = "fallBackOnList")
     public List<Customer> listCustomers() {
-        List<ServiceInstance> serviceInstances = discoveryClient.getInstances("customer");
-        ServiceInstance customerServiceInstance = serviceInstances.get(0);
-        return restTemplate.getForObject(customerServiceInstance.getUri() + "/customers", List.class);
+        return restTemplate.getForObject("http://customer/customers", List.class);
     }
 
     private List<Customer> fallBackOnList() {

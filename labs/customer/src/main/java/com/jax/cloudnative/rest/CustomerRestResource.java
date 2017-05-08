@@ -21,6 +21,7 @@ public class CustomerRestResource {
 
     @GetMapping
     public List<Customer> findAllCustomers() {
+        System.out.println("retrieving customers");
         return customerRepository.findAll();
     }
 

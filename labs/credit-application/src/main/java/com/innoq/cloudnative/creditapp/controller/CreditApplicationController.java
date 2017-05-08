@@ -3,6 +3,7 @@ package com.innoq.cloudnative.creditapp.controller;
 import com.innoq.cloudnative.creditapp.domain.CreditApplicationForm;
 import com.innoq.cloudnative.creditapp.domain.Customer;
 import com.innoq.cloudnative.creditapp.events.CreditApplicationHandedInEvent;
+import com.innoq.cloudnative.creditapp.integration.FeignCustomerClient;
 import com.innoq.cloudnative.creditapp.integration.ICustomerIntegrationService;
 import com.innoq.cloudnative.creditapp.repository.CreditApplicationFormRepository;
 import org.slf4j.Logger;
@@ -25,13 +26,13 @@ public class CreditApplicationController {
 
     private CreditApplicationFormRepository creditApplicationFormRepository;
 
-    private ICustomerIntegrationService customerService;
+    private FeignCustomerClient customerService;
 
     private RedisTemplate redisTemplate;
 
     @Autowired
     public CreditApplicationController(CreditApplicationFormRepository creditApplicationFormRepository,
-                                       ICustomerIntegrationService customerService,
+                                       FeignCustomerClient customerService,
                                        RedisTemplate redisTemplate) {
         this.creditApplicationFormRepository = creditApplicationFormRepository;
         this.customerService = customerService;
@@ -57,7 +58,7 @@ public class CreditApplicationController {
     public String saveStepTwo(@ModelAttribute ProcessContainer processContainer, Model model) {
 
         Customer customer = processContainer.getCustomer();
-        Customer savedCustomer = customerService.saveCustomerInBackend(customer, processContainer.getCreditApplicationForm().getId());
+        Customer savedCustomer = customerService.saveCustomer(customer);
         processContainer.getCreditApplicationForm().setCustomerId(savedCustomer.getId());
         processContainer.setCustomer(savedCustomer);
         creditApplicationFormRepository.save(processContainer.getCreditApplicationForm());
@@ -77,10 +78,5 @@ public class CreditApplicationController {
         LOGGER.info("Remotely and synchronously calling the Scoring Application in order to perform a scoring");
 
         return "scoringResult";
-    }
-
-    @GetMapping(path = "customers")
-    public List<Customer> listCustomers() {
-        return customerService.listCustomers();
     }
 }
