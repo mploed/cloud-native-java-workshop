@@ -1,0 +1,5 @@
+---
+applications:
+- name: mploed-hystrix-dashboard
+  memory: 1024M
+  path: target/hystrix-dashboard-0.0.1-SNAPSHOT.jar

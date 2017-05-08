@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: credit-application
+  cloud:
+    config:
+      uri: http://localhost:9060
+management:
+  security:
+    enabled: false

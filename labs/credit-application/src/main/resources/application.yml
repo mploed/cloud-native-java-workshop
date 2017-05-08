@@ -1,0 +1,11 @@
+server:
+  port: 9090
+endpoints:
+  actuator:
+    enabled: true
+management:
+  security:
+    enabled: false
+spring:
+  jpa:
+    show-sql: true
