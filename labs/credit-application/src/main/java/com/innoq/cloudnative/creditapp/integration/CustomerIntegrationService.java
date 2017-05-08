@@ -5,6 +5,8 @@ import com.innoq.cloudnative.creditapp.domain.CustomersForLaterSaving;
 import com.innoq.cloudnative.creditapp.repository.CustomersForLaterSavingRepository;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,22 +19,29 @@ public class CustomerIntegrationService implements ICustomerIntegrationService {
 
     private CustomersForLaterSavingRepository customersForLaterSavingRepository;
 
+    private DiscoveryClient discoveryClient;
+
     @Autowired
-    public CustomerIntegrationService(RestTemplate restTemplate, CustomersForLaterSavingRepository customersForLaterSavingRepository) {
+    public CustomerIntegrationService(RestTemplate restTemplate, CustomersForLaterSavingRepository customersForLaterSavingRepository, DiscoveryClient discoveryClient) {
         this.restTemplate = restTemplate;
         this.customersForLaterSavingRepository = customersForLaterSavingRepository;
+        this.discoveryClient = discoveryClient;
     }
 
     @Override
     @HystrixCommand(fallbackMethod = "putCustomerToTheSide")
     public Customer saveCustomerInBackend(Customer customer, Long creditApplicationId) {
-        return restTemplate.postForObject("http://localhost:9091/customers", customer, Customer.class);
+        List<ServiceInstance> serviceInstances = discoveryClient.getInstances("customer");
+        ServiceInstance customerServiceInstance = serviceInstances.get(0);
+        return restTemplate.postForObject(customerServiceInstance.getUri() + "/customers", customer, Customer.class);
     }
 
     @Override
     @HystrixCommand(fallbackMethod = "fallBackOnList")
     public List<Customer> listCustomers() {
-        return restTemplate.getForObject("http://localhost:9091/customers", List.class);
+        List<ServiceInstance> serviceInstances = discoveryClient.getInstances("customer");
+        ServiceInstance customerServiceInstance = serviceInstances.get(0);
+        return restTemplate.getForObject(customerServiceInstance.getUri() + "/customers", List.class);
     }
 
     private List<Customer> fallBackOnList() {

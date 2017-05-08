@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 public class JoshLongHealthIndicator implements HealthIndicator {
     @Override
     public Health health() {
-        return Health.down().withDetail("Presence", "Josh is not in Mainz").build();
+        return Health.up().withDetail("Presence", "Josh is not in Mainz but we assume he's fine").build();
     }
 }
