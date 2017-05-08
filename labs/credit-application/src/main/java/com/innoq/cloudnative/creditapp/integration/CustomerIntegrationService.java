@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class CustomerIntegrationService implements ICustomerIntegrationService {
     private RestTemplate restTemplate;
@@ -26,6 +29,15 @@ public class CustomerIntegrationService implements ICustomerIntegrationService {
         return restTemplate.postForObject("http://localhost:9091/customers", customer, Customer.class);
     }
 
+    @Override
+    @HystrixCommand(fallbackMethod = "fallBackOnList")
+    public List<Customer> listCustomers() {
+        return restTemplate.getForObject("http://localhost:9091/customers", List.class);
+    }
+
+    private List<Customer> fallBackOnList() {
+        return new ArrayList<Customer>();
+    }
     private Customer putCustomerToTheSide(Customer customer, Long creditApplicationId) {
         CustomersForLaterSaving forLaterSaving = new CustomersForLaterSaving();
         forLaterSaving.setCity(customer.getCity());
